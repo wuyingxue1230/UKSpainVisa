@@ -26,7 +26,7 @@ class Visa(Basic):
         self.click_el(xpath="//select[@name='category']/option[contains(text(),'{}')]".format(category))
         self.wait_for_secs()
         self.click_el(name='checkDate')
-        logger.info("select centre finished")
+        logger.info("Select centre finished ！")
 
     def go_to_appointment_page(self, phone='', email=''):
         self.open_page(config.OPENED_PAGE)
