@@ -3,6 +3,7 @@ from datetime import datetime
 from utils import config
 from utils.basic import Basic
 from utils.log import logger
+from time import sleep
 
 
 class Visa(Basic):
@@ -66,6 +67,24 @@ class Visa(Basic):
         self.click_el(xpath="//select[@id='VisaTypeId']/option[contains(text(),'{}')]".format(config.CENTER[3]))
         self.wait_for_secs(1)
 
+        # 勾选模式
+        sms = self.driver.find_element_by_id("vasId12")
+        if not sms.is_selected() and config.MODE[0] == 'Yes':
+            sms.click()
+            sleep(0.5)
+        photo = self.driver.find_element_by_id("vasId5")
+        if not photo.is_selected() and config.MODE[1] == 'Yes':
+            photo.click()
+            sleep(0.5)
+        premium = self.driver.find_element_by_id("vasId1")
+        if not premium.is_selected() and config.MODE[2] == 'Yes':
+            premium.click()
+            sleep(0.5)
+        courier = self.driver.find_element_by_id("courierId")
+        if not courier.is_selected() and config.MODE[3] == 'Yes':
+            courier.click()
+            sleep(0.5)
+
         # check date
         self.click_el(id="app_date")
         available_dates = {}
@@ -86,6 +105,7 @@ class Visa(Basic):
         # days in the current month
         result_dates = {}
         dates = []
+
         if len(self.driver.find_elements_by_xpath(normal_dates_xpath)):
             found_month = self.driver.find_element_by_xpath(
                 "//div[@class='datepicker-days']//th[@class='datepicker-switch']").text
@@ -95,5 +115,16 @@ class Visa(Basic):
                 found_date = datetime.strptime(day + " " + found_month, '%d %B %Y')
                 result_dates[found_date.strftime("%d/%m/%Y")] = []
             self.click_el(normal_dates_xpath)  # 自动点击
+
+            # 选择日期，最晚的那个
+            select_el = self.driver.find_element_by_id("app_time")
+            select_el.click()
+            options = select_el.find_element_by_tag_name('option')
+            options[len(options) - 1].click()
+            logger.info("Time selected !")
+
+            # 点击确认
+            self.driver.find_element_by_name("bookDate").click()
+            logger.info("Finished !")
 
         return result_dates
