@@ -110,9 +110,9 @@ class Visa(Basic):
             # 选择日期，最晚的那个
             select_el = self.driver.find_element_by_id("app_time")
             select_el.click()
+            self.wait_for_secs(1)
             select = Select(select_el)
             select.select_by_index(len(select.options)-1)
-            self.wait_for_secs(1)
             logger.info(f" User {email} 's time selected !")
 
             # 点击确认
