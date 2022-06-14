@@ -1,6 +1,5 @@
 import ssl
 import time
-# import ssl
 
 import pyttsx3
 from selenium import webdriver

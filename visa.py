@@ -30,14 +30,9 @@ class Visa(Basic):
 
     def go_to_appointment_page(self, phone='', email=''):
         self.open_page(config.OPENED_PAGE)
-        # self.select_centre("England", "Manchester", "Normal")
-        # self.enter_phone_and_email(phone, email)
-        # self.enter_wrong_code(email, config.PASSWORD)
-        # self.enter_code_from_email(email)
 
     def login(self):
         try:
-            # self.click_el(xpath="//a[text() = 'Log in']")
             element = self.driver.find_element_by_xpath("//a[contains(text(),'Log in')]")
             element.click()
             self.wait_for_secs()
@@ -46,7 +41,7 @@ class Visa(Basic):
             self.enter_message(config.PASSWORD, name='password')
             self.wait_for_secs()
             self.click_el(name="login")
-            logger.info("log in finished")
+            logger.info("Log in finished !")
         except Exception as e:
             logger.error(e)
 
@@ -55,12 +50,8 @@ class Visa(Basic):
         link = f'book-appointment/{unique_suffix}'
         element = self.driver.find_element_by_xpath("//a[contains(text(),'Book Appointment')]")
         element.click()
-        logger.info(f"date appointment link = [{link}]")
-        # open a new tab
-        # self.driver.execute_script(f'window.open(\"{link}\","_blank");')
-        # # switch to the new tab
-        # self.driver.switch_to.window(self.driver.window_handles[-1])
-        logger.info("go to book appointment finished")
+        logger.info(f"Date appointment link = [{link}]")
+        logger.info("Go to book appointment finished !")
 
     def check_available_dates(self):
         self.click_el(id="VisaTypeId")
