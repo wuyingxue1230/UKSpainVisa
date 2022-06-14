@@ -3,7 +3,7 @@ from datetime import datetime
 from utils import config
 from utils.basic import Basic
 from utils.log import logger
-from time import sleep
+from selenium.webdriver.support.select import Select
 
 
 class Visa(Basic):
@@ -14,7 +14,7 @@ class Visa(Basic):
     def open_page(self, page):
         self.driver.get(page)
 
-    def select_centre(self, county, city, category):
+    def select_centre(self, county, city, category, email):
         self.wait_for_secs()
         self.click_el(name="JurisdictionId")
         self.click_el(xpath="//select[@name='JurisdictionId']/option[contains(text(),'{}')]".format(county))
@@ -26,77 +26,76 @@ class Visa(Basic):
         self.click_el(xpath="//select[@name='category']/option[contains(text(),'{}')]".format(category))
         self.wait_for_secs()
         self.click_el(name='checkDate')
-        logger.info("Select centre finished ！")
+        logger.info(f"User {email} select centre finished !")
 
-    def go_to_appointment_page(self, phone='', email=''):
-        self.open_page(config.OPENED_PAGE)
+    def go_to_appointment_page(self, url):
+        self.open_page(config.FIXED + url)
 
-    def login(self):
+    def login(self, email, password):
         try:
             element = self.driver.find_element_by_xpath("//a[contains(text(),'Log in')]")
             element.click()
             self.wait_for_secs()
-            self.enter_message(config.EMAIL, name='email')
+            self.enter_message(email, name='email')
             self.wait_for_secs()
-            self.enter_message(config.PASSWORD, name='password')
+            self.enter_message(password, name='password')
             self.wait_for_secs()
             self.click_el(name="login")
-            logger.info("Log in finished !")
+            logger.info(f"User {email} log in finished !")
         except Exception as e:
             logger.error(e)
 
-    def go_to_book_appointment(self):
-        unique_suffix = config.OPENED_PAGE.split('/')[-1]
+    def go_to_book_appointment(self, url, email):
+        unique_suffix = url.split('/')[-1]
         link = f'book-appointment/{unique_suffix}'
         element = self.driver.find_element_by_xpath("//a[contains(text(),'Book Appointment')]")
         element.click()
-        logger.info(f"Date appointment link = [{link}]")
-        logger.info("Go to book appointment finished !")
+        logger.info(f"User {email} date appointment link = [{link}]")
+        logger.info(f"User {email} go to book appointment finished !")
 
-    def check_available_dates(self):
+    def check_available_dates(self, mode, category, email):
         self.click_el(id="VisaTypeId")
-        self.click_el(xpath="//select[@id='VisaTypeId']/option[contains(text(),'{}')]".format(config.CENTER[3]))
+        self.click_el(xpath="//select[@id='VisaTypeId']/option[contains(text(),'{}')]".format(category))
         self.wait_for_secs(1)
 
         # 勾选模式
         sms = self.driver.find_element_by_id("vasId12")
-        if not sms.is_selected() and config.MODE[0] == 'Yes':
+        if not sms.is_selected() and mode[0] == 'Yes':
             sms.click()
-            sleep(0.5)
+            self.wait_for_secs(1)
         photo = self.driver.find_element_by_id("vasId5")
-        if not photo.is_selected() and config.MODE[1] == 'Yes':
+        if not photo.is_selected() and mode[1] == 'Yes':
             photo.click()
-            sleep(0.5)
+            self.wait_for_secs(1)
         premium = self.driver.find_element_by_id("vasId1")
-        if not premium.is_selected() and config.MODE[2] == 'Yes':
+        if not premium.is_selected() and mode[2] == 'Yes':
             premium.click()
-            sleep(0.5)
+            self.wait_for_secs(1)
         courier = self.driver.find_element_by_id("courierId")
-        if not courier.is_selected() and config.MODE[3] == 'Yes':
+        if not courier.is_selected() and mode[3] == 'Yes':
             courier.click()
-            sleep(0.5)
+            self.wait_for_secs(1)
 
         # check date
         self.click_el(id="app_date")
         available_dates = {}
         next_button_xpath = "//div[@class = 'datepicker-days']//th[@class = 'next' and @style = 'visibility: visible;']"  # next month
         while True:
-            nd = self.get_normal_dates()
+            nd = self.get_normal_dates(email)
             if nd:
                 available_dates.update(nd)
             if self.driver.find_elements_by_xpath(next_button_xpath):
-                self.wait_for_secs(0)
+                self.wait_for_secs(1)
                 self.click_el(xpath=next_button_xpath)
             else:
                 break
         return available_dates
 
-    def get_normal_dates(self):
+    def get_normal_dates(self, email):
         normal_dates_xpath = "//div[@class='datepicker-days']//td[not(contains(@class, 'disabled'))]"
         # days in the current month
         result_dates = {}
         dates = []
-
         if len(self.driver.find_elements_by_xpath(normal_dates_xpath)):
             found_month = self.driver.find_element_by_xpath(
                 "//div[@class='datepicker-days']//th[@class='datepicker-switch']").text
@@ -106,16 +105,19 @@ class Visa(Basic):
                 found_date = datetime.strptime(day + " " + found_month, '%d %B %Y')
                 result_dates[found_date.strftime("%d/%m/%Y")] = []
             self.click_el(normal_dates_xpath)  # 自动点击
+            self.wait_for_secs()
 
             # 选择日期，最晚的那个
             select_el = self.driver.find_element_by_id("app_time")
             select_el.click()
-            options = select_el.find_element_by_tag_name('option')
-            options[len(options) - 1].click()
-            logger.info("Time selected !")
+            select = Select(select_el)
+            select.select_by_index(len(select.options)-1)
+            self.wait_for_secs(1)
+            logger.info(f" User {email} 's time selected !")
 
             # 点击确认
+            self.wait_for_secs(1)
             self.driver.find_element_by_name("bookDate").click()
-            logger.info("Finished !")
+            logger.info(f"User {email} finished !")
 
         return result_dates
