@@ -7,6 +7,7 @@ from utils.log import logger
 from visa import Visa
 import undetected_chromedriver as uc
 import threadpool
+import pyttsx3
 
 
 def init_driver():
@@ -40,7 +41,7 @@ def monitor(email, password, url, centers, mode):
             dates = visa.check_available_dates(mode, centers[3], email)
             if dates:
                 logger.info(f"USER {email} DAY AVAILABLE: {dates}")
-
+                pyttsx3.speak(f"say day available {email} {available_dates}")
                 time.sleep(120)
             else:
                 logger.info(f"{email}: NO DAY AVAILABLE...")

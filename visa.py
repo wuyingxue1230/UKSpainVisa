@@ -4,7 +4,6 @@ from utils import config
 from utils.basic import Basic
 from utils.log import logger
 from selenium.webdriver.support.select import Select
-import pyttsx3
 
 
 class Visa(Basic):
@@ -90,7 +89,7 @@ class Visa(Basic):
                 self.click_el(xpath=next_button_xpath)
             else:
                 break
-        pyttsx3.speak(f"say day available {email} {available_dates}")
+
         return available_dates
 
     def get_normal_dates(self, email):
