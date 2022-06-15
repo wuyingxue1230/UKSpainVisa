@@ -1,16 +1,12 @@
 import ssl
 import time
 
-import pyttsx3
-
 from utils.config import TIMEOUT
 from utils.config import USERS
 from utils.log import logger
 from visa import Visa
 import undetected_chromedriver as uc
 import threadpool
-
-gl_tasks = []
 
 
 def init_driver():
