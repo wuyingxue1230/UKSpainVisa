@@ -41,8 +41,9 @@ def monitor(email, password, url, centers, mode):
             dates = visa.check_available_dates(mode, centers[3], email)
             if dates:
                 logger.info(f"USER {email} DAY AVAILABLE: {dates}")
-                pyttsx3.speak(f"say day available {email} {available_dates}")
-                time.sleep(120)
+                pyttsx3.speak(f"say day available {email} {dates}")
+                time.sleep(10)
+                # 10s 后继续进入下一个循环
             else:
                 logger.info(f"{email}: NO DAY AVAILABLE...")
                 driver.refresh()
