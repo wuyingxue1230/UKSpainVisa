@@ -4,6 +4,7 @@ from utils import config
 from utils.basic import Basic
 from utils.log import logger
 from selenium.webdriver.support.select import Select
+import pyttsx3
 
 
 class Visa(Basic):
@@ -89,6 +90,7 @@ class Visa(Basic):
                 self.click_el(xpath=next_button_xpath)
             else:
                 break
+        pyttsx3.speak(f"say day available {email} {available_dates}")
         return available_dates
 
     def get_normal_dates(self, email):
@@ -104,6 +106,8 @@ class Visa(Basic):
             for day in dates:
                 found_date = datetime.strptime(day + " " + found_month, '%d %B %Y')
                 result_dates[found_date.strftime("%d/%m/%Y")] = []
+
+            logger.info(f"User {email} found date {result_dates}")
             self.click_el(normal_dates_xpath)  # 自动点击
             self.wait_for_secs()
 
@@ -117,7 +121,8 @@ class Visa(Basic):
 
             # 点击确认
             self.wait_for_secs(1)
-            self.driver.find_element_by_name("bookDate").click()
+            confirm = self.driver.find_element_by_name("bookDate")
+            confirm.click()
             logger.info(f"User {email} finished !")
 
         return result_dates

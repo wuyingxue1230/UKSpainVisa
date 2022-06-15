@@ -35,14 +35,16 @@ def monitor(email, password, url, centers, mode):
     try:
         time.sleep(1)
         visa.go_to_appointment_page(url)
+        time.sleep(1)
         visa.login(email, password)
+        time.sleep(1)
         visa.go_to_book_appointment(url, email)
         visa.select_centre(centers[0], centers[1], centers[2], email)
         while True:
             dates = visa.check_available_dates(mode, centers[3], email)
             if dates:
                 logger.info(f"USER {email} DAY AVAILABLE: {dates}")
-                pyttsx3.speak(f"say day available {email} {dates}")
+
                 time.sleep(120)
             else:
                 logger.info(f"{email}: NO DAY AVAILABLE...")
